@@ -1,6 +1,6 @@
 const BASE_URL = "http://localhost:4000/api/codebreaker";
 
-export  async function postNumber(numbers) {
+export  async function startGame(numbers) {
   try {
     const res = await fetch(`${BASE_URL}`, {
       method: "POST",
@@ -18,7 +18,7 @@ export  async function postNumber(numbers) {
   
 }
 
-export async function getRandom(){
+export async function getRandomNumber(){
   try {
     const res = await fetch(`${BASE_URL}`)
     const data = await res.json()

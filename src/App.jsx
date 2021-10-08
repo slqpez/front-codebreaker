@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {postNumber,getRandom} from "./services/codeBreaker"
+import {startGame,getRandomNumber} from "./services/codeBreaker"
 import { ToastContainer, toast } from 'react-toastify';
 
 import 'react-toastify/dist/ReactToastify.css';
@@ -9,8 +9,9 @@ function App() {
 
   const [number, setNumber] = useState(0)
   const [random, setRandom] = useState(0)
-  const [inputValue, setInputValue] = useState(0)
+  const [inputValue, setInputValue] = useState(" ")
   const [isplaying, setIsPlaying] = useState(false)
+  const [gameStarted, setGameStarted] = useState(false)
   const [match, setMatch]= useState(false)
   const [result, setResult]= useState({
     result:"",
@@ -19,17 +20,22 @@ function App() {
   })
 
 const handleInput =(e)=>{
-  setInputValue(Number(e.target.value))
+  setInputValue(e.target.value)
 }
 
+
+useEffect(()=>{
+  getRandomNumber()
+  .then(data=>setRandom(data.number))
+},[])
+
 const handleSubmit = (e)=>{
-  if(inputValue){
-    setIsPlaying(true)
   
- 
-    
+  if(inputValue.toString().length == 4){
+    setIsPlaying(true)
+    setGameStarted(true)
   }else{
-    toast.info('No ingresaste un valor', {
+    toast.info('Ingresa un número de 4 dígitos.', {
       position: "top-right",
       autoClose: 2000,
       hideProgressBar: false,
@@ -46,17 +52,19 @@ const handleSubmit = (e)=>{
 
   const handleNewGame = async (e)=>{
     e.preventDefault()
-   const res = getRandom()
-   console.log(res)
+    setGameStarted(false)
+    setIsPlaying(false)
+    setInputValue(" ")
+   const data = await getRandomNumber()
+   setRandom(data.number)
   }   
   useEffect(() => {
 
-    const numbers = {number, random:4325}
-      postNumber(numbers)
+    const numbers = {number, random}
+    startGame(numbers)
       .then(data => {
-        setResult(data.result)
-        console.log(data.result.result)
-        if(data.result.result === "xxxx"){
+        setResult(data.values)
+        if(data.values.result === "xxxx"){
           setMatch(true)
           setTimeout(()=>{
             setMatch(false)
@@ -65,8 +73,10 @@ const handleSubmit = (e)=>{
         }
       }) 
      
-},[number])
+},[number,random])
 
+
+console.log(random)
   return (
     <div className="App">
     <div className="title__container">
@@ -76,8 +86,8 @@ const handleSubmit = (e)=>{
       <form action="POST" onSubmit={handleSubmit}>
         <label htmlFor="guess-number">Ingresa tu numero de apuesta </label>
         <input id="guess-number" type="number" onChange={handleInput} max="9999" placeholder="Ingresa un número de 4 dígitos." value={inputValue}/>
-        <button>Empezar juego</button>
-        <button onClick={handleNewGame}>Empezar nuevo juego</button>
+        <button>{isplaying?"Intentar de nuevo":"Jugar"}</button>
+        {gameStarted?<button onClick={handleNewGame}>Empezar nuevo juego</button>:null}
       </form>
     </div>
     <div className="guide__container">
