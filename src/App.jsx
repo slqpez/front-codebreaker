@@ -9,6 +9,7 @@ function App() {
 
   const [number, setNumber] = useState(0)
   const [random, setRandom] = useState(0)
+  const [isWinner,setIsWinner] = useState(false)
   const [inputValue, setInputValue] = useState(" ")
   const [isplaying, setIsPlaying] = useState(false)
   const [gameStarted, setGameStarted] = useState(false)
@@ -54,6 +55,7 @@ const handleSubmit = (e)=>{
     e.preventDefault()
     setGameStarted(false)
     setIsPlaying(false)
+    setIsWinner(false)
     setInputValue(" ")
    const data = await getRandomNumber()
    setRandom(data.number)
@@ -66,6 +68,7 @@ const handleSubmit = (e)=>{
         setResult(data.values)
         if(data.values.result === "xxxx"){
           setMatch(true)
+          setIsWinner(true)
           setTimeout(()=>{
             setMatch(false)
           },2000)
@@ -76,7 +79,6 @@ const handleSubmit = (e)=>{
 },[number,random])
 
 
-console.log(random)
   return (
     <div className="App">
     <div className="title__container">
@@ -85,16 +87,16 @@ console.log(random)
     <div className="form__container">
       <form action="POST" onSubmit={handleSubmit}>
         <label htmlFor="guess-number">Ingresa tu numero de apuesta </label>
-        <input id="guess-number" type="number" onChange={handleInput} max="9999" placeholder="Ingresa un número de 4 dígitos." value={inputValue}/>
-        <button>{isplaying?"Intentar de nuevo":"Jugar"}</button>
-        {gameStarted?<button onClick={handleNewGame}>Empezar nuevo juego</button>:null}
+        <input id="guess-number" type="number" onChange={handleInput} placeholder="Ingresa un número de 4 dígitos." value={inputValue}/>
+        {isWinner?null:<button data-cy ="btn-play">{isplaying?"Intentar de nuevo":"Jugar"}</button>}
+        {gameStarted?<button data-cy="btn-new-game" onClick={handleNewGame}>Empezar nuevo juego</button>:null}
       </form>
     </div>
     <div className="guide__container">
 
       <div>
 
-        {isplaying?<> <p>Tu resultado fue: <b>{result.result}</b></p></>:null}
+        {isplaying?<> <p data-cy="result-text">Tu resultado fue: <b>{result.result}</b></p></>:null}
        
       </div>
 
@@ -107,7 +109,7 @@ console.log(random)
       <p></p>
 
     </div>
-    <ToastContainer />
+    <ToastContainer data-cy="alert-modal" />
   </div>
   )
 }
